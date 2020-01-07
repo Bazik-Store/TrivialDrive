@@ -207,7 +207,7 @@ interface IInAppBillingService {
 
     /**
     * To submit the score coresponded to the scoreId by the scoreValue.
-    * You can find the scoreId form Bazinama Developer and be assured that scoreValue is correct
+    * You can find the scoreId form Bazik Developer and be assured that scoreValue is correct
     * because it will be calculated in ordering users/players in the ScoreLeaderBoard for each games individullay.
     * */
     String submitScore(String packageName,String scoreId,int scoreValue);

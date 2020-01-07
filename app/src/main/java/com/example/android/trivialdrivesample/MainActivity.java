@@ -28,6 +28,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -97,12 +99,14 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
         OnClickListener {
     // Debug tag, for logging
     static final String TAG = "TrivialDrive";
+    // SKU for app subscription
+    static final String SKU_SUBSCRIPTION = "0033P91699";
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     static final String SKU_PREMIUM = "premium";
     static final String SKU_GAS = "gas";
     // SKU for our subscription (infinite gas)
-    static final String SKU_INFINITE_GAS_MONTHLY = "infinite_gas_monthly";
-    static final String SKU_INFINITE_GAS_YEARLY = "infinite_gas_yearly";
+    static final String SKU_INFINITE_GAS_MONTHLY = "033P183899";
+    static final String SKU_INFINITE_GAS_YEARLY = "033P183899";
     // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
     // How many units (1/4 tank is our unit) fill in the tank.
@@ -312,14 +316,14 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
         // enable debug logging (for a production application, you should set this to false).
         mHelper.enableDebugLogging(true);
-
         // Start setup. This is asynchronous and the specified listener
         // will be called once setup completes.
         Log.d(TAG, "Starting setup.");
         mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
                 Log.d(TAG, "Setup finished.");
-                // Just in case we're not able to find the BaziNama Application on the device, so definitely we're gonna do that forcibly :|
+                Log.d(TAG, "result value:[" + result.toString() +"]");
+                // Just in case we're not able to find the Bazik Application on the device, so definitely we're gonna do that forcibly :|
                 if (result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE) {
                     showDownloadDialog();
                     return;
@@ -356,19 +360,19 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
     }
 
     /**
-     * To show a dialog with download button & the URL of the latest release of BaziNama application.
+     * To show a dialog with download button & the URL of the latest release of Bazik application.
      */
     private void showDownloadDialog() {
         new Builder(MainActivity.this)
                 .setTitle("بازینما")
-                .setMessage("برای استفاده از تمام امکانات این بازی و شرکت در کلوپ جوایز، باید اپلیکیشن بازی نما را دانلود و نصب نمایید.")
+                .setMessage("برای استفاده از تمام امکانات این بازی و شرکت در کلوپ جوایز، باید اپلیکیشن بازیک را دانلود و نصب نمایید.")
                 .setPositiveButton("دانلود",
                         new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 startActivity(
                                         new Intent(Intent.ACTION_VIEW)
-                                                .setData(Uri.parse("http://plus.bazinama.com/bazinama.apk")));
+                                                .setData(Uri.parse("http://plus.Bazik.com/Bazik.apk")));
                             }
                         })
                 .create()
@@ -387,71 +391,17 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
         }
     }
 
-    // User clicked the "Buy Gas" button
-    public void onBuyGasButtonClicked(View arg0) {
-        Log.d(TAG, "Buy gas button clicked.");
-
-        if (mSubscribedToInfiniteGas) {
-            complain("No need! You're subscribed to infinite gas. Isn't that awesome?");
-            return;
-        }
-
-        if (mTank >= TANK_MAX) {
-            complain("Your tank is full. Drive around a bit!");
-            return;
-        }
-
-        // launch the gas purchase UI flow.
-        // We will be notified of completion via mPurchaseFinishedListener
-        setWaitScreen(true);
-        Log.d(TAG, "Launching purchase flow for gas.");
-
-        /* TODO: for security, generate your payload here for verification. See the comments on
-         *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
-         *        an empty string, but on a production app you should carefully generate this. */
-        String payload = getPayloadString();
-
-        try {
-            mHelper.launchPurchaseFlow(this, SKU_GAS, RC_REQUEST,
-                    mPurchaseFinishedListener, payload);
-        } catch (IllegalStateException ex) {
-            ex.printStackTrace();
-            setWaitScreen(false);
-            showDownloadDialog();
-            return;
-        } catch (IabHelper.IabAsyncInProgressException e) {
-            complain("Error launching purchase flow. Another async operation in progress.");
-            setWaitScreen(false);
-        }
-    }
-
     @NonNull
     private String getPayloadString() {
         return "Sample New Developer Payload at : " + System.nanoTime();
     }
 
+    // User clicked the "Buy Gas" button
+    public void onBuyGasButtonClicked(View arg0) {
+    }
+
     // User clicked the "Upgrade to Premium" button.
     public void onUpgradeAppButtonClicked(View arg0) {
-        Log.d(TAG, "Upgrade button clicked; launching purchase flow for upgrade.");
-        setWaitScreen(true);
-
-        /* TODO: for security, generate your payload here for verification. See the comments on
-         *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
-         *        an empty string, but on a production app you should carefully generate this. */
-        String payload = getPayloadString();
-
-        try {
-            mHelper.launchPurchaseFlow(this, SKU_PREMIUM, RC_REQUEST,
-                    mPurchaseFinishedListener, payload);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            showDownloadDialog();
-            setWaitScreen(false);
-            return;
-        } catch (IabHelper.IabAsyncInProgressException e) {
-            complain("Error launching purchase flow. Another async operation in progress.");
-            setWaitScreen(false);
-        }
     }
 
     // "Subscribe to infinite gas" button clicked. Explain to user, then start purchase
@@ -557,7 +507,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
     /**
      * When user get a hit of score and you wanted to submit the score for the
-     * BaziNama SDK, Please notice that this score will be involved in leader board calculations,
+     * Bazik SDK, Please notice that this score will be involved in leader board calculations,
      * it means that each user in each game will be ordered by their scores that already have submitted
      * while they were struggling to achieve more and more.
      *
@@ -651,6 +601,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e(TAG, "FFUUUUUUUUUUUCCCKKKKIIIINNGG YYOOUU !!!");
         Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data);
         if (mHelper == null) return;
 
@@ -699,19 +650,19 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
 
     /**
-     * When You wanted to open up rating and commenting page on BaziNama
+     * When You wanted to open up rating and commenting page on Bazik
      *
      * @param arg0
      */
     public void onRateUsClicked(View arg0) {
         /***
          * WARNING: on a real application, we really recommend you use the package name (BuildConfig.APPLICATION_ID)
-         * as same as you've registered in BaziNama Developer Console
+         * as same as you've registered in Bazik Developer Console
          * */
         try {
             Intent intent = new Intent(Intent.ACTION_EDIT);
-            intent.setData(Uri.parse("bazinamaplus://game_comments?id=" + BuildConfig.APPLICATION_ID));
-            intent.setPackage("com.yaramobile.bazinamastore");
+            intent.setData(Uri.parse("bazik_store://game_comments?id=" + BuildConfig.APPLICATION_ID));
+            intent.setPackage("ir.irancell.bazik.y");
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
             e.printStackTrace();
@@ -723,17 +674,6 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
     // Drive button clicked. Burn gas!
     public void onDriveButtonClicked(View arg0) {
-        Log.d(TAG, "Drive button clicked.");
-
-        if (!mSubscribedToInfiniteGas && mTank <= 0)
-            alert("Oh, no! You are out of gas! Try buying some!");
-        else {
-            if (!mSubscribedToInfiniteGas) --mTank;
-            saveData();
-            alert("Vroooom, you drove a few miles.");
-            updateUi();
-            Log.d(TAG, "Vrooom. Tank is now " + mTank);
-        }
 
     }
 

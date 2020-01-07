@@ -1,4 +1,4 @@
-Bazinama Trivial Drive
+Bazik Trivial Drive
 ============
 
 Sample for In-App Billing version 3
@@ -6,7 +6,7 @@ Sample for In-App Billing version 3
 Introduction
 ------------
 
-This sample is provided to demonstrate Bazinama plus In-app Billing. To read
+This sample is provided to demonstrate Bazik plus In-app Billing. To read
 more visit https://bazinamaplus.ir/billing/index.html
 
 This game is a simple "driving" game where the player can buy gas
@@ -39,7 +39,7 @@ This sample can't be run as-is. You have to create your own
 application instance in the Developer Console and modify this
 sample to point to it. Here is what you must do:
 
-ON THE BAZINAMA PLUS DEVELOPER CONSOLE
+ON THE Bazik PLUS DEVELOPER CONSOLE
 
 1. Create an application on the Developer Console, available at
    https://dev.bazinamaplus.ir/apps/publish/.
@@ -58,9 +58,9 @@ IN THE CODE
 
 5. Export an APK, signing it with your PRODUCTION (not debug) developer certificate.
 
-BACK TO THE BAZINAMA PLUS DEVELOPER CONSOLE
+BACK TO THE Bazik PLUS DEVELOPER CONSOLE
 
-6. Upload your APK to BAZINAMA PLUS for Alpha Testing.
+6. Upload your APK to Bazik PLUS for Alpha Testing.
 
 7. Make sure to add your test account (the one you will use to test purchases)
    to the "testers" section of your app. Your test account CANNOT BE THE SAME AS
@@ -76,8 +76,8 @@ BACK TO THE BAZINAMA PLUS DEVELOPER CONSOLE
    infinite_gas_monthly and yearly for infinite_gas_yearly. To prevent being charged
    while testing, set the trial period to 7 days.
 
-10. Publish your APK to the Alpha channel. Wait 2-3 hours for BAZINAMA PLUS to process the APK
-   If you don't wait for BAZINAMA PLUS to process the APK, you might see errors where BAZINAMA PLUS
+10. Publish your APK to the Alpha channel. Wait 2-3 hours for Bazik PLUS to process the APK
+   If you don't wait for Bazik PLUS to process the APK, you might see errors where Bazik PLUS
    says that "this version of the application is not enabled for in-app billing" or something
    similar. Ensure that the In-App products move to the "Active" state within the console before
    testing.
@@ -91,7 +91,7 @@ test device [*].
 
 Remember to refund any real purchases you make, if you don't want the
 charges to actually to through. Remember, you can use the tester functionality within
-the BAZINAMA PLUS console to define test BAZINAMA PLUS Accounts that won't be charged.
+the Bazik PLUS console to define test Bazik PLUS Accounts that won't be charged.
 When using the tester functionality make sure to look for "Test" language appended
 to each receipt. If you don't see "Test" then you will need to be sure to refund/cancel
 the charge.

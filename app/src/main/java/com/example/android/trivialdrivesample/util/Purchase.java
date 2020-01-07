@@ -32,6 +32,7 @@ public class Purchase {
     String mToken;
     String mOriginalJson;
     String mSignature;
+    boolean isSubscription;
     boolean mIsAutoRenewing;
 
     public Purchase(String itemType, String jsonPurchaseInfo, String signature) throws JSONException {
@@ -46,20 +47,22 @@ public class Purchase {
         mDeveloperPayload = o.optString("developerPayload");
         mToken = o.optString("token", o.optString("purchaseToken"));
         mIsAutoRenewing = o.optBoolean("autoRenewing");
+        isSubscription = o.optBoolean("isSubscription");
         mSignature = signature;
     }
 
-    public String getItemType() { return mItemType; }
-    public String getOrderId() { return mOrderId; }
-    public String getPackageName() { return mPackageName; }
-    public String getSku() { return mSku; }
-    public long getPurchaseTime() { return mPurchaseTime; }
-    public int getPurchaseState() { return mPurchaseState; }
-    public String getDeveloperPayload() { return mDeveloperPayload; }
-    public String getToken() { return mToken; }
-    public String getOriginalJson() { return mOriginalJson; }
-    public String getSignature() { return mSignature; }
-    public boolean isAutoRenewing() { return mIsAutoRenewing; }
+    public final String getItemType() { return mItemType; }
+    public final String getOrderId() { return mOrderId; }
+    public final String getPackageName() { return mPackageName; }
+    public final String getSku() { return mSku; }
+    public final long getPurchaseTime() { return mPurchaseTime; }
+    public final int getPurchaseState() { return mPurchaseState; }
+    public final String getDeveloperPayload() { return mDeveloperPayload; }
+    public final String getToken() { return mToken; }
+    public final String getOriginalJson() { return mOriginalJson; }
+    public final String getSignature() { return mSignature; }
+    public final boolean isAutoRenewing() { return mIsAutoRenewing; }
+    final boolean isSubscription() { return isSubscription; }
 
     @Override
     public String toString() { return "PurchaseInfo(type:" + mItemType + "):" + mOriginalJson; }

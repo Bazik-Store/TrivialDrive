@@ -215,7 +215,7 @@ public class IabHelper {
     public String getUserAchievements(String packageName) throws Exception {
         logDebug("Package Name : " + packageName + " mSetupDone " + mSetupDone + " mService: " + mService + " mServiceConn : " + mServiceConn);
         if (mService == null && !mSetupDone) {
-            throw new Exception("BaziNama Not Found ");
+            throw new Exception("Bazik Not Found ");
         }
         return mService.getUserAchievements(packageName);
     }
@@ -306,9 +306,9 @@ public class IabHelper {
             }
         };
 
-        // change intent action name and package name with com.yaramobile.bazinamastore
-        Intent serviceIntent = new Intent("com.yaramobile.bazinamastore.billing.InAppBillingService.BIND");
-        serviceIntent.setPackage("com.yaramobile.bazinamastore");
+        // change intent action name and package name with ir.irancell.bazik.y
+        Intent serviceIntent = new Intent("ir.irancell.bazik.y.billing.InAppBillingService.BIND");
+        serviceIntent.setPackage("ir.irancell.bazik.y");
         List<ResolveInfo> intentServices = mContext.getPackageManager()
                 .queryIntentServices(serviceIntent, 0);
         Log.d("TAG", "startSetup: <<<< intentServices : " + intentServices + " >>>>");
@@ -316,7 +316,7 @@ public class IabHelper {
             if (intentServices != null && !intentServices.isEmpty()) {
                 // service available to handle that Intent
                 mContext.bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
-            } else {// Show the prompt dialog for install BaziNama
+            } else {// Show the prompt dialog for install Bazik
                 // no service available to handle that Intent
                 if (listener != null) {
                     listener.onIabSetupFinished(
@@ -416,7 +416,7 @@ public class IabHelper {
      * Initiate the UI flow for an in-app purchase. Call this method to initiate an in-app purchase,
      * which will involve bringing up the Google Play screen. The calling activity will be paused
      * while the user interacts with Google Play, and the result will be delivered via the
-     * activity's {@link Activity#onActivityResult} method, at which point you must call
+     * activity's {@link Activity#onActivityResult(int, int, Intent)} method, at which point you must call
      * this object's {@link #handleActivityResult} method to continue the purchase flow. This method
      * MUST be called from the UI thread of the Activity.
      *
@@ -476,6 +476,18 @@ public class IabHelper {
                 return;
             }
 
+            String subscribeInfo = null;
+            try{
+                subscribeInfo = buyIntentBundle.getString("subscribeInfo");
+            } catch(NullPointerException e){
+            }
+
+            if(subscribeInfo != null){
+                logDebug("Congratulation!! User has app subscription!!");
+                createSuccessfulPurchase(subscribeInfo, listener);
+                return;
+            }
+
             PendingIntent pendingIntent = buyIntentBundle.getParcelable(RESPONSE_BUY_INTENT);
             logDebug("Launching buy intent for " + sku + ". Request code: " + requestCode);
             mRequestCode = requestCode;
@@ -503,6 +515,22 @@ public class IabHelper {
             result = new IabResult(IABHELPER_REMOTE_EXCEPTION, "Remote exception while starting purchase flow");
             if (listener != null) listener.onIabPurchaseFinished(result, null);
         }
+    }
+
+    private void createSuccessfulPurchase(String subscribeInfo, OnIabPurchaseFinishedListener mPurchaseListener) {
+        if(mPurchaseListener == null) return;
+
+        logDebug("on Successful purchase check. User has bazik package.");
+
+        try {
+            IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "User has subscription");
+            Purchase purchase= new Purchase(ITEM_TYPE_SUBS, subscribeInfo , "");
+            mPurchaseListener.onIabPurchaseFinished(result, purchase);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -560,13 +588,15 @@ public class IabHelper {
                 purchase = new Purchase(mPurchasingItemType, purchaseData, dataSignature);
                 String sku = purchase.getSku();
 
-                // Verify signature
-                if (!Security.verifyPurchase(mSignatureBase64, purchaseData, dataSignature)) {
-                    logError("Purchase signature verification FAILED for sku " + sku);
-                    result = new IabResult(IABHELPER_VERIFICATION_FAILED, "Signature verification failed for sku " + sku);
-                    if (mPurchaseListener != null)
-                        mPurchaseListener.onIabPurchaseFinished(result, purchase);
-                    return true;
+                if(!purchase.isSubscription) {
+                    // Verify signature
+                    if (!Security.verifyPurchase(mSignatureBase64, purchaseData, dataSignature)) {
+                        logError("Purchase signature verification FAILED for sku " + sku);
+                        result = new IabResult(IABHELPER_VERIFICATION_FAILED, "Signature verification failed for sku " + sku);
+                        if (mPurchaseListener != null)
+                            mPurchaseListener.onIabPurchaseFinished(result, purchase);
+                        return true;
+                    }
                 }
                 logDebug("Purchase signature successfully verified.");
             } catch (JSONException e) {
@@ -894,6 +924,7 @@ public class IabHelper {
                         + " Signature : " + signature
                 );
 
+
                 if (Security.verifyPurchase(mSignatureBase64, purchaseData, signature)) {
                     logDebug("Sku is owned: " + sku);
                     Purchase purchase = new Purchase(itemType, purchaseData, signature);
@@ -1089,7 +1120,7 @@ public class IabHelper {
     public void submitScore(String packageName, String scoreId, int scoreValue) throws RemoteException {
         logDebug("submitScore() called with: packageName = [" + packageName + "], scoreId = [" + scoreId + "], scoreValue = [" + scoreValue + "]");
         if (!mSetupDone && mServiceConn == null) {
-            throw new IllegalStateException("BaziNama Not Found !!!");
+            throw new IllegalStateException("Bazik Not Found !!!");
         }
         final String submitScoreResult = mService.submitScore(packageName, scoreId, scoreValue);
         logDebug("Submit the score result : " + submitScoreResult);
@@ -1107,7 +1138,7 @@ public class IabHelper {
         logDebug("openLeaderBoard() called with: packageName = ["
                 + packageName + "], scoreId = [" + scoreId + "], scope = [" + scope + "]");
         if (!mSetupDone && mServiceConn == null) {
-            throw new IllegalStateException("BaziNama Not Found !!!");
+            throw new IllegalStateException("Bazik Not Found !!!");
         }
         mService.openLeaderBoard(packageName, scoreId, scope);
     }
