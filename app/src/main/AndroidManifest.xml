@@ -14,6 +14,7 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.android.trivialdrivesample">
 
     <!-- VERY IMPORTANT! Don't forget this permission, or in-app billing won't work. -->
@@ -23,7 +24,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name="com.example.android.trivialdrivesample.MainActivity"
             android:label="@string/title_activity_main"

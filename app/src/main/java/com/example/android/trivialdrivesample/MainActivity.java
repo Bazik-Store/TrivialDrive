@@ -134,6 +134,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
     // Provides purchase notification while this app is running
     IabBroadcastReceiver mBroadcastReceiver;
+
     // Called when consumption is complete
     IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
         public void onConsumeFinished(Purchase purchase, IabResult result) {
@@ -160,6 +161,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
             Log.d(TAG, "End consumption flow.");
         }
     };
+
     // Listener that's called when we finish querying the items and subscriptions we own
     IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
         public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
@@ -468,6 +470,21 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
         }
     }
 
+    /**
+     * On Send User event Clicked
+     *
+     * @param view
+     */
+    public void onSendUserEventClicked(View view) {
+        Log.d(TAG, "onSendUserEventClicked !!!");
+        try {
+            mHelper.sendUserEvent(view.getContext().getPackageName(),"ViewClicked!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showDownloadDialog();
+        }
+    }
+
 
     /**
      * When user wanted to gain new achievement and unlock it,
@@ -650,7 +667,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
 
     /**
-     * When You wanted to open up rating and commenting page on Bazik
+     * When Yozu wanted to open up rating and commenting page on Baik
      *
      * @param arg0
      */

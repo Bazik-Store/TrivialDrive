@@ -43,6 +43,12 @@ import android.os.Bundle;
  * RESULT_ITEM_NOT_OWNED = 8 - Failure to consume since item is not owned
  */
 interface IInAppBillingService {
+
+   /**
+    * Submit user events
+    */
+    boolean trackEvent(String eventName, String packageName);
+
     /**
      * Checks support for the requested billing API version, package and in-app type.
      * Minimum API version supported by this interface is 3.
@@ -220,4 +226,6 @@ interface IInAppBillingService {
     * by their scores.
     * */
     void openLeaderBoard(String packageName,String scoreId,String scope);
+
+    void trackUserEvents(String actionName, String packageName);
 }
