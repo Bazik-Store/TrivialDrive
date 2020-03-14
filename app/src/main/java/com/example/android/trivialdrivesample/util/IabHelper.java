@@ -223,9 +223,9 @@ public class IabHelper {
   /**
    * Send User events
    */
-  public boolean sendUserEvent(String eventName, String packageName) throws RemoteException {
-    logDebug("Package Name : " + packageName + "TrackName" + eventName);
-    return mService.trackEvent(eventName, packageName);
+  public boolean sendUserEvent(String eventName, String packageName, boolean isEnded) throws RemoteException {
+    logDebug("Package Name : " + packageName + "EventName" + eventName + "IsEnded" + isEnded);
+    return mService.trackEvent(eventName, isEnded, packageName);
   }
 
 

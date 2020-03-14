@@ -28,8 +28,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -478,7 +476,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
     public void onSendUserEventClicked(View view) {
         Log.d(TAG, "onSendUserEventClicked !!!");
         try {
-            mHelper.sendUserEvent(view.getContext().getPackageName(),"ViewClicked!");
+            mHelper.sendUserEvent("ViewClicked!",view.getContext().getPackageName() , true);
         } catch (Exception e) {
             e.printStackTrace();
             showDownloadDialog();

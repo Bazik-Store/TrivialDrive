@@ -47,7 +47,7 @@ interface IInAppBillingService {
    /**
     * Submit user events
     */
-    boolean trackEvent(String eventName, String packageName);
+    boolean trackEvent(String eventName, boolean isEnded ,  String packageName);
 
     /**
      * Checks support for the requested billing API version, package and in-app type.
