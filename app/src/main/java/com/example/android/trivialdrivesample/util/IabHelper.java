@@ -228,7 +228,6 @@ public class IabHelper {
     return mService.trackEvent(eventName, isEnded, packageName);
   }
 
-
   /**
    * Starts the setup process. This will start up the setup process asynchronously.
    * You will be notified through the listener when the setup process is complete.
@@ -257,7 +256,6 @@ public class IabHelper {
         mService = IInAppBillingService.Stub.asInterface(service);
         String packageName = mContext.getPackageName();
 
-
         try {
 
           logDebug("Checking for in-app billing 3 support.");
@@ -274,6 +272,7 @@ public class IabHelper {
             return;
           } else {
             logDebug("In-app billing version 3 supported for " + packageName);
+            sendUserEvent("User subscription checked at IabHelper startSetup()", packageName, true);
           }
 
           // Check for v5 subscriptions support. This is needed for
