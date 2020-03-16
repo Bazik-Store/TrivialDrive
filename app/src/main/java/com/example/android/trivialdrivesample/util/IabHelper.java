@@ -33,7 +33,6 @@ import com.android.vending.billing.IInAppBillingService;
 import com.example.android.trivialdrivesample.CustomActivityLifecycleCallbacks;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -537,6 +536,7 @@ public class IabHelper {
     logDebug("on Successful purchase check. User has bazik package.");
 
     try {
+
       IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "User has subscription");
       Purchase purchase = new Purchase(ITEM_TYPE_SUBS, subscribeInfo, "");
       activity.getApplication().registerActivityLifecycleCallbacks(new CustomActivityLifecycleCallbacks(activity, this, purchase.getStartTimeOfSession()));

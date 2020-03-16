@@ -21,7 +21,10 @@ public class ActivityLifecycleHandler {
   static void initialize(Activity activity, IabHelper iabHelper, String startTime) {
 
     //Prevent resending start session by changing current activity in application
-    if (startSessionSent) return;
+    if (startSessionSent) {
+      Log.w(TAG, "Start Session is sent before startSessionSent[" + startSessionSent   + "]");
+      return;
+    }
 
     try {
 
@@ -58,7 +61,10 @@ public class ActivityLifecycleHandler {
   }
 
   static void onActivityDestroyed(Activity activity, IabHelper iabHelper) {
-    if (endSessionSent) return;
+    if (endSessionSent) {
+      Log.w(TAG, "End Session is sent before endSessionSent[" + endSessionSent + "]");
+      return;
+    }
     try {
       endSessionSent = iabHelper.sendUserEvent(
         "User has finished his/her session now",
