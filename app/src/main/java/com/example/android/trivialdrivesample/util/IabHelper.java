@@ -30,8 +30,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.vending.billing.IInAppBillingService;
+import com.example.android.trivialdrivesample.CustomActivityLifecycleCallbacks;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -223,9 +225,9 @@ public class IabHelper {
   /**
    * Send User events
    */
-  public boolean sendUserEvent(String eventName, String packageName, boolean isEnded) throws RemoteException {
-    logDebug("Package Name : " + packageName + "EventName" + eventName + "IsEnded" + isEnded);
-    return mService.trackEvent(eventName, isEnded, packageName);
+  public boolean sendUserEvent(String eventName, String packageName, boolean isEnded, String sessionTime) throws RemoteException {
+    logDebug("Package Name : " + packageName + "EventName" + eventName + "IsEnded" + isEnded + "SessionTime" + sessionTime);
+    return mService.trackEvent(eventName, isEnded, packageName, sessionTime);
   }
 
   /**
@@ -272,7 +274,6 @@ public class IabHelper {
             return;
           } else {
             logDebug("In-app billing version 3 supported for " + packageName);
-            sendUserEvent("User subscription checked at IabHelper startSetup()", packageName, true);
           }
 
           // Check for v5 subscriptions support. This is needed for
@@ -489,6 +490,7 @@ public class IabHelper {
       }
 
       String subscribeInfo = null;
+      String startTime = null;
       try {
         subscribeInfo = buyIntentBundle.getString("subscribeInfo");
       } catch (NullPointerException e) {
@@ -496,7 +498,7 @@ public class IabHelper {
 
       if (subscribeInfo != null) {
         logDebug("Congratulation!! User has app subscription!!");
-        createSuccessfulPurchase(subscribeInfo, listener);
+        createSuccessfulPurchase(act, subscribeInfo, listener);
         return;
       }
 
@@ -529,7 +531,7 @@ public class IabHelper {
     }
   }
 
-  private void createSuccessfulPurchase(String subscribeInfo, OnIabPurchaseFinishedListener mPurchaseListener) {
+  private void createSuccessfulPurchase(Activity activity, String subscribeInfo, OnIabPurchaseFinishedListener mPurchaseListener) {
     if (mPurchaseListener == null) return;
 
     logDebug("on Successful purchase check. User has bazik package.");
@@ -537,6 +539,7 @@ public class IabHelper {
     try {
       IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "User has subscription");
       Purchase purchase = new Purchase(ITEM_TYPE_SUBS, subscribeInfo, "");
+      activity.getApplication().registerActivityLifecycleCallbacks(new CustomActivityLifecycleCallbacks(activity, this, purchase.getStartTimeOfSession()));
       mPurchaseListener.onIabPurchaseFinished(result, purchase);
 
     } catch (JSONException e) {

@@ -42,6 +42,7 @@ import com.example.android.trivialdrivesample.util.Purchase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * Example game using in-app billing version 3.
@@ -479,7 +480,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
   public void onSendUserEventClicked(View view) {
     Log.d(TAG, "onSendUserEventClicked !!!");
     try {
-      mHelper.sendUserEvent("ViewClicked!", view.getContext().getPackageName(), true);
+      mHelper.sendUserEvent("ViewClicked!", view.getContext().getPackageName(), true , "0000-00-00 00:00:00");
     } catch (Exception e) {
       e.printStackTrace();
       showDownloadDialog();
@@ -599,7 +600,9 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
       }
 
       setWaitScreen(true);
+
       Log.d(TAG, "Launching purchase flow for gas subscription.");
+
       try {
         mHelper.launchPurchaseFlow(this, mSelectedSubscriptionPeriod, IabHelper.ITEM_TYPE_SUBS,
           oldSkus, RC_REQUEST, mPurchaseFinishedListener, payload);
@@ -619,7 +622,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    Log.e(TAG, "FFUUUUUUUUUUUCCCKKKKIIIINNGG YYOOUU !!!");
+    Log.e(TAG, "FFUUUUUUUUUUUCCCKKKKIIIINNGG YYOOUU !!! ;)");
     Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data);
     if (mHelper == null) return;
 
