@@ -1,13 +1,13 @@
 package com.example.android.trivialdrivesample;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Timer;
 import java.util.TimerTask;
 
 /**

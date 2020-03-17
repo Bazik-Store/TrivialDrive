@@ -30,7 +30,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.example.android.trivialdrivesample.CustomActivityLifecycleCallbacks;
+import com.example.android.trivialdrivesample.AppLifeCycleService;
+import com.example.android.trivialdrivesample.Test;
+import com.example.android.trivialdrivesample.UserSessionHandler;
 
 import org.json.JSONException;
 
@@ -225,7 +227,12 @@ public class IabHelper {
    * Send User events
    */
   public boolean sendUserEvent(String eventName, String packageName, boolean isEnded, String sessionTime) throws RemoteException {
-    logDebug("Package Name : " + packageName + "EventName" + eventName + "IsEnded" + isEnded + "SessionTime" + sessionTime);
+    logDebug(" ----->>>sendUserEvent " +
+      "Package Name : " + packageName +
+      "EventName" + eventName +
+      "IsEnded" + isEnded +
+      "SessionTime" + sessionTime +
+      "<<<----\n");
     return mService.trackEvent(eventName, isEnded, packageName, sessionTime);
   }
 
@@ -428,7 +435,7 @@ public class IabHelper {
    * Initiate the UI flow for an in-app purchase. Call this method to initiate an in-app purchase,
    * which will involve bringing up the Google Play screen. The calling activity will be paused
    * while the user interacts with Google Play, and the result will be delivered via the
-   * activity's {@link Activity#onActivityResult(int, int, Intent)} method, at which point you must call
+   * activity's {@link Activity#onActivityResult(int, int, Intent)} method, at which poinCut you must call
    * this object's {@link #handleActivityResult} method to continue the purchase flow. This method
    * MUST be called from the UI thread of the Activity.
    *
@@ -539,7 +546,13 @@ public class IabHelper {
 
       IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "User has subscription");
       Purchase purchase = new Purchase(ITEM_TYPE_SUBS, subscribeInfo, "");
-      activity.getApplication().registerActivityLifecycleCallbacks(new CustomActivityLifecycleCallbacks(activity, this, purchase.getStartTimeOfSession()));
+
+      UserSessionHandler.submitStartSession(activity, this, purchase.getStartTimeOfSession());
+      activity.startService(new Intent(activity, AppLifeCycleService.class));
+
+      activity.startActivity(new Intent(activity , Test.class));
+      activity.finish();
+      
       mPurchaseListener.onIabPurchaseFinished(result, purchase);
 
     } catch (JSONException e) {
