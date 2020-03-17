@@ -23,7 +23,7 @@ public class UserSessionHandler {
   private static IabHelper mIabHelper;
   private static String mStartTime;
 
-  public static void initial(Activity activity, IabHelper iabHelper, String startTime){
+  public static void initial(Activity activity, IabHelper iabHelper, String startTime) {
     mActivity = activity;
     mIabHelper = iabHelper;
     mStartTime = startTime;
@@ -84,6 +84,7 @@ public class UserSessionHandler {
     mTimer.cancel();
     mActivity = null;
     mIabHelper = null;
+    startSessionSent = false;
   }
 
 }
