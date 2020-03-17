@@ -31,6 +31,7 @@ import android.util.Log;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.example.android.trivialdrivesample.AppLifeCycleService;
+import com.example.android.trivialdrivesample.CustomLifecycleCallbacks;
 import com.example.android.trivialdrivesample.UserSessionHandler;
 
 import org.json.JSONException;
@@ -546,8 +547,10 @@ public class IabHelper {
       IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "User has subscription");
       Purchase purchase = new Purchase(ITEM_TYPE_SUBS, subscribeInfo, "");
 
-      UserSessionHandler.submitStartSession(activity, this, purchase.getStartTimeOfSession());
+      UserSessionHandler.initial(activity, this, purchase.getStartTimeOfSession());
+      UserSessionHandler.submitStartSession();
       activity.startService(new Intent(activity, AppLifeCycleService.class));
+      activity.getApplication().registerActivityLifecycleCallbacks(new CustomLifecycleCallbacks());
 
       mPurchaseListener.onIabPurchaseFinished(result, purchase);
 

@@ -21,10 +21,15 @@ public class UserSessionHandler {
   private static Timer mTimer;
   private static Activity mActivity;
   private static IabHelper mIabHelper;
+  private static String mStartTime;
 
-  public static void submitStartSession(Activity activity, IabHelper iabHelper, String startTime) {
+  public static void initial(Activity activity, IabHelper iabHelper, String startTime){
     mActivity = activity;
     mIabHelper = iabHelper;
+    mStartTime = startTime;
+  }
+
+  public static void submitStartSession() {
 
     //Prevent resending start session by changing current activity in application
     if (startSessionSent) {
@@ -33,14 +38,19 @@ public class UserSessionHandler {
     }
 
     try {
-      startSessionSent = iabHelper.sendUserEvent("User has started his/her session now", activity.getPackageName(), false, startTime);
+
+      startSessionSent = mIabHelper.sendUserEvent("User has started his/her session now", mActivity.getPackageName(), false, mStartTime);
+      endSessionSent = false;
+
       mTimer = new Timer();
-      mSessionTimer = new SessionTimer(startTime);
+      mSessionTimer = new SessionTimer(mStartTime);
       mTimer.scheduleAtFixedRate(mSessionTimer, SessionTimer.DELAY, SessionTimer.PEROID);
+
     } catch (RemoteException e) {
       e.printStackTrace();
       Log.d(TAG, "Error on send event [" + e.toString() + "]");
     }
+
   }
 
   public static void submitEndSession() {
@@ -70,12 +80,10 @@ public class UserSessionHandler {
     }
   }
 
-
   private static void cleanup() {
     mTimer.cancel();
     mActivity = null;
     mIabHelper = null;
-    startSessionSent = false;
-    endSessionSent = false;
   }
+
 }
