@@ -12,6 +12,9 @@ import android.util.Log;
  * OnPause(), OnStop(), OnDestroy() methods won't fire. So because of that situations
  * We decided to create this damn service, inorder to submit the user's endSession.
  *
+ * Because of the stopWithTask=false:
+ * the service will automaticallybe stopped by the system if the user removes
+ * a task that is rooted in one of the application's activities.
  */
 public class AppLifeCycleService extends Service {
   @Nullable

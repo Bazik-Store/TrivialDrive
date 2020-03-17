@@ -31,7 +31,6 @@ import android.util.Log;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.example.android.trivialdrivesample.AppLifeCycleService;
-import com.example.android.trivialdrivesample.Test;
 import com.example.android.trivialdrivesample.UserSessionHandler;
 
 import org.json.JSONException;
@@ -550,9 +549,6 @@ public class IabHelper {
       UserSessionHandler.submitStartSession(activity, this, purchase.getStartTimeOfSession());
       activity.startService(new Intent(activity, AppLifeCycleService.class));
 
-      activity.startActivity(new Intent(activity , Test.class));
-      activity.finish();
-      
       mPurchaseListener.onIabPurchaseFinished(result, purchase);
 
     } catch (JSONException e) {
