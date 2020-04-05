@@ -233,7 +233,8 @@ public class IabHelper {
       "IsEnded" + isEnded +
       "SessionTime" + sessionTime +
       "<<<----\n");
-    return mService.trackEvent(eventName, isEnded, packageName, sessionTime);
+//    return mService.trackEvent(eventName, isEnded, packageName, sessionTime);
+    return false;
   }
 
   /**
@@ -547,10 +548,13 @@ public class IabHelper {
       IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "User has subscription");
       Purchase purchase = new Purchase(ITEM_TYPE_SUBS, subscribeInfo, "");
 
-      UserSessionHandler.initial(activity, this, purchase.getStartTimeOfSession());
-      UserSessionHandler.submitStartSession();
+      //Send start session to the Bazik
+      UserSessionHandler.getInstance(activity, purchase.getStartTimeOfSession());
+
+      //Start AppLifeCycleService.class to track closing app from recent app part of device
       activity.startService(new Intent(activity, AppLifeCycleService.class));
-      activity.getApplication().registerActivityLifecycleCallbacks(new CustomLifecycleCallbacks());
+      //Implement appLifeCycle event to track every lifeCycle of the application
+      activity.getApplication().registerActivityLifecycleCallbacks(new CustomLifecycleCallbacks(purchase.getStartTimeOfSession(), activity));
 
       mPurchaseListener.onIabPurchaseFinished(result, purchase);
 

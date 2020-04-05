@@ -19,13 +19,18 @@ import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIB
 public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
 
   private final String TAG = CustomLifecycleCallbacks.class.getSimpleName();
+  private final String sessionStartTime;
+  private Activity currentActivity;
 
-  public CustomLifecycleCallbacks() {
+  public CustomLifecycleCallbacks(String sessionStartTime, Activity activity) {
+    this.sessionStartTime = sessionStartTime;
+    this.currentActivity = activity;
   }
 
   @Override
   public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
     Log.v(TAG, "onCreate is called on activity [" + activity.getClass().getSimpleName() + "]");
+    currentActivity = activity;
   }
 
   @Override
@@ -36,7 +41,10 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
   @Override
   public void onActivityResumed(@NonNull Activity activity) {
     Log.v(TAG, "onResume is called on activity [" + activity.getClass().getSimpleName() + "]");
-    UserSessionHandler.submitStartSession();
+    currentActivity = activity;
+
+    //Start tracking a new session
+    UserSessionHandler.getInstance(activity, sessionStartTime);
   }
 
   @Override
@@ -44,9 +52,32 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
     Log.v(TAG, "onPaused is called on activity [" + activity.getClass().getSimpleName() + "]");
   }
 
+  /**
+   * By navigating from activity One to Activity Two we gonna face with this lifecycle
+   * Activity One:
+   *   OnPause()
+   * Activity Two():
+   *   OnCreate()
+   *   OnStart()
+   *  OnResume()
+   * And finally we got:
+   * Activity One():
+   *   OnStop()
+   *
+   * So because of above situation we need to save our current activity [currentActivity]
+   * And after ending session for last activity (in this senario activity One)
+   * Start Session for [currentActivity]
+   */
   @Override
   public void onActivityStopped(@NonNull Activity activity) {
     Log.v(TAG, "onStop is called on activity [" + activity.getClass().getSimpleName() + "]");
+
+    //End session by calling onStop
+    UserSessionHandler.getInstance(activity, sessionStartTime).endSession();
+
+    if (currentActivity != activity && isAppInForeground()) {
+      UserSessionHandler.getInstance(currentActivity, sessionStartTime);
+    }
   }
 
   @Override
@@ -58,8 +89,6 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
   public void onActivityDestroyed(@NonNull Activity activity) {
     boolean isAppForeground = isAppInForeground();
     Log.v(TAG, "onDestroy is called on activity [" + activity.getClass().getSimpleName() + "] Application is in foreground? [" + isAppForeground + "]");
-    if (!isAppForeground && activity.isFinishing())
-      UserSessionHandler.submitEndSession();
   }
 
   private boolean isAppInForeground() {

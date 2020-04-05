@@ -16,13 +16,13 @@ import java.util.TimerTask;
 public class SessionTimer extends TimerTask {
 
   private static final String TAG = SessionTimer.class.getSimpleName();
-  public static final Integer DELAY = 0;
-  public static final Integer PEROID = 1000;
+  static final Integer DELAY = 0;
+  static final Integer PEROID = 1000;
   private int passedTimeInSeconds = 0;
   private String startTime;
   private SimpleDateFormat simpleDateFormat;
 
-  public SessionTimer(String startTim) {
+  SessionTimer(String startTim) {
     simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
     this.startTime = startTim;
   }
@@ -49,5 +49,4 @@ public class SessionTimer extends TimerTask {
     Log.d(TAG, "EndTime is [" + endTime + "] with startTime [" + startTime + "] with passedSeconds is[" + passedTimeInSeconds + "] ");
     return endTime;
   }
-
 }

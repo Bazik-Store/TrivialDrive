@@ -20,13 +20,17 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -478,13 +482,14 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
    * @param view
    */
   public void onSendUserEventClicked(View view) {
-    Log.d(TAG, "onSendUserEventClicked !!!");
-    try {
-      mHelper.sendUserEvent("ViewClicked!", view.getContext().getPackageName(), true , "0000-00-00 00:00:00");
-    } catch (Exception e) {
-      e.printStackTrace();
-      showDownloadDialog();
-    }
+    Log.d(TAG, "Not handled here !!!");
+    startActivity(new Intent(this  , Main2Activity.class));
+//    try {
+//      mHelper.sendUserEvent("ViewClicked!", view.getContext().getPackageName(), true , "0000-00-00 00:00:00");
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//      showDownloadDialog();
+//    }
   }
 
 

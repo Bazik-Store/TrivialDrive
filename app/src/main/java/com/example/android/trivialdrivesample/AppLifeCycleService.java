@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 /**
@@ -31,8 +32,13 @@ public class AppLifeCycleService extends Service {
   @Override
   public void onTaskRemoved(Intent rootIntent) {
     super.onTaskRemoved(rootIntent);
-    UserSessionHandler.submitEndSession();
+    sendEndEventBroadcast();
     stopSelf();
+  }
+
+  private void sendEndEventBroadcast(){
+    Intent intent = new Intent(UserSessionHandler.BROADCAST_END_EVENT_KEY);
+    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
   }
 
 }
