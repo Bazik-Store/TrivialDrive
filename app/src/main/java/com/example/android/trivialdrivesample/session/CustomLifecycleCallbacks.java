@@ -1,4 +1,4 @@
-package com.example.android.trivialdrivesample;
+package com.example.android.trivialdrivesample.session;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -44,7 +44,7 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
     currentActivity = activity;
 
     //Start tracking a new session
-    UserSessionHandler.getInstance(activity, sessionStartTime);
+    UserSession.getInstance(activity, sessionStartTime);
   }
 
   @Override
@@ -73,10 +73,10 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
     Log.v(TAG, "onStop is called on activity [" + activity.getClass().getSimpleName() + "]");
 
     //End session by calling onStop
-    UserSessionHandler.getInstance(activity, sessionStartTime).endSession();
+    UserSession.getInstance(activity, sessionStartTime).endSession();
 
     if (currentActivity != activity && isAppInForeground()) {
-      UserSessionHandler.getInstance(currentActivity, sessionStartTime);
+      UserSession.getInstance(currentActivity, sessionStartTime);
     }
   }
 
@@ -91,7 +91,7 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
     Log.v(TAG, "onDestroy is called on activity [" + activity.getClass().getSimpleName() + "] Application is in foreground? [" + isAppForeground + "]");
   }
 
-  private boolean isAppInForeground() {
+  public static boolean isAppInForeground() {
     ActivityManager.RunningAppProcessInfo appProcessInfo = new ActivityManager.RunningAppProcessInfo();
     ActivityManager.getMyMemoryState(appProcessInfo);
     return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE);

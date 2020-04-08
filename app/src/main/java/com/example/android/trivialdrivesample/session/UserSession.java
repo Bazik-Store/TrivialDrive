@@ -1,4 +1,4 @@
-package com.example.android.trivialdrivesample;
+package com.example.android.trivialdrivesample.session;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -14,7 +14,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.Timer;
@@ -25,22 +24,23 @@ import static android.content.Context.BIND_AUTO_CREATE;
  * CREATED BY Javadroid FOR `Session Time Tracker` PROJECT
  * AT: 2020/Feb/24 13:18
  */
-public class UserSessionHandler {
+public class UserSession implements SessionTimerInteractionListener {
 
   static final String BROADCAST_END_EVENT_KEY = "broad_cast_end_event_key";
 
-  private static final String TAG = UserSessionHandler.class.getSimpleName();
+  private static final String TAG = UserSession.class.getSimpleName();
   private static final String SERVICE_TRACKER_ACTION_NAME = "com.bazik.tracker.event.service";
   private static final String SERVICE_TRACKER_PACKAGE = "ir.irancell.bazik.y";
 
   //bundle values that gonna use to send events info to the Bazik
   private final static String SESSION_EVENT_NAME = "session_event_name";
   private final static String SESSION_PACKAGE_NAME = "session_package_name";
-  private final static String SESSION_IS_ENDED = "session_is_ended";
+  private final static String IS_APPLICATION_BACKGROUND = "is_application_foreground";
   private final static String SESSION_START_TIME = "session_start_time";
-  private final static String SESSION_END_TIME = "session_end_time";
+  private final static String SESSION_PASSED_TIME_IN_SECONDS = "session_passed_time_in_seconds";
+  private final static String IS_START_OF_SESSION = "is_start_of_session";
 
-  private static volatile UserSessionHandler INSTANCE;
+  private static volatile UserSession INSTANCE;
 
   private SessionTimer mSessionTimer;
   private Timer mTimer;
@@ -50,7 +50,7 @@ public class UserSessionHandler {
   private boolean mIsBinded;
   private final String packageName;
 
-  private UserSessionHandler(Activity activity, String mStartTime) {
+  private UserSession(Activity activity, String mStartTime) {
     this.mStartTime = mStartTime;
     mActivity = new WeakReference<>(activity);
     packageName = mActivity.get().getPackageName();
@@ -62,21 +62,50 @@ public class UserSessionHandler {
     LocalBroadcastManager.getInstance(mActivity.get()).registerReceiver(endBroadCastReceiver, new IntentFilter(BROADCAST_END_EVENT_KEY));
   }
 
-  public static UserSessionHandler getInstance(Activity activity, String mStartTime) {
+  public static UserSession getInstance(Activity activity, String mStartTime) {
     if (INSTANCE == null) {
-      synchronized (UserSessionHandler.class) {
-        INSTANCE = new UserSessionHandler(activity, mStartTime);
+      synchronized (UserSession.class) {
+        INSTANCE = new UserSession(activity, mStartTime);
       }
     }
     return INSTANCE;
   }
 
-  public void endSession() {
+
+  @Override
+  public void periodReached(int passedSecondsInPeriod) {
+    Log.d(TAG, "Send Update for End session with Activity [" + mActivity.get().getClass().getName() + "]");
+    if (INSTANCE == null || !mIsBinded) {
+      Log.e(TAG, "Can't submit any update fot EndSession INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
+      return;
+    }
+
+    Message updateEndSessionMessage = new Message();
+
+    updateEndSessionMessage.setData(
+      prepareBundleOfData(
+        false ,
+        "Automatically user session updated when he/she is active now!!!",
+        passedSecondsInPeriod
+      )
+    );
+
+    try {
+      mMessenger.send(updateEndSessionMessage);
+      Log.d(TAG, "Session time is [" + passedSecondsInPeriod + "]");
+    } catch (RemoteException e) {
+      //TODO What's the plan for this kind of situations? Suggestion: calling onClear() and leave this track
+      e.printStackTrace();
+      Log.e(TAG, "Error while sending end session to the Bazik [" + e.getLocalizedMessage() + "]");
+    }
+  }
+
+  void endSession() {
     submitEndSession();
   }
 
   private void submitStartSession() {
-    Log.d(TAG, "Send Start session with startTime ["+mStartTime+"] with Activity ["+mActivity.get().getClass().getName()+"]");
+    Log.d(TAG, "Send Start session with startTime [" + mStartTime + "] with Activity [" + mActivity.get().getClass().getName() + "]");
     if (mStartTime == null) {
       Log.e(TAG, "Session start time is Null");
       return;
@@ -86,13 +115,13 @@ public class UserSessionHandler {
 
       Message startSessionMessage = new Message();
 
-      Bundle bundleOfStartSession = new Bundle();
-      bundleOfStartSession.putString(SESSION_EVENT_NAME, "User has started his/her session now");
-      bundleOfStartSession.putString(SESSION_PACKAGE_NAME, packageName);
-      bundleOfStartSession.putBoolean(SESSION_IS_ENDED, false);
-      bundleOfStartSession.putString(SESSION_START_TIME, mStartTime);
-
-      startSessionMessage.setData(bundleOfStartSession);
+      startSessionMessage.setData(
+        prepareBundleOfData(
+          true,
+          "User has started his/her session now",
+          0
+        )
+      );
 
       mMessenger.send(startSessionMessage);
       startTimer();
@@ -105,23 +134,23 @@ public class UserSessionHandler {
   }
 
   private void submitEndSession() {
-    Log.d(TAG, "Send End session with Activity ["+mActivity.get().getClass().getName()+"]");
+    Log.d(TAG, "Send End session with Activity [" + mActivity.get().getClass().getName() + "]");
     if (INSTANCE == null || !mIsBinded) {
       Log.e(TAG, "Can't submitEndSession INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
       return;
     }
 
-    String sessionTime = mSessionTimer.getEndTime();
+    int sessionTime = mSessionTimer.getEndTime();
 
     Message endSessionMessage = new Message();
 
-    Bundle bundleOfEndSession = new Bundle();
-    bundleOfEndSession.putString(SESSION_EVENT_NAME, "User has finished his/her session now");
-    bundleOfEndSession.putString(SESSION_PACKAGE_NAME, packageName);
-    bundleOfEndSession.putBoolean(SESSION_IS_ENDED, true);
-    bundleOfEndSession.putString(SESSION_END_TIME, sessionTime);
-
-    endSessionMessage.setData(bundleOfEndSession);
+    endSessionMessage.setData(
+      prepareBundleOfData(
+        false,
+        "User has finished his/her session now",
+        sessionTime
+      )
+    );
 
     try {
       mMessenger.send(endSessionMessage);
@@ -146,8 +175,8 @@ public class UserSessionHandler {
   private void startTimer() {
 
     mTimer = new Timer();
-    mSessionTimer = new SessionTimer(mStartTime);
-    mTimer.scheduleAtFixedRate(mSessionTimer, SessionTimer.DELAY, SessionTimer.PEROID);
+    mSessionTimer = new SessionTimer(this);
+    mTimer.scheduleAtFixedRate(mSessionTimer, SessionTimer.DELAY, SessionTimer.PERIOD);
   }
 
   private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -172,6 +201,17 @@ public class UserSessionHandler {
     }
   };
 
+  private Bundle prepareBundleOfData(boolean isStartOfSession, String message, int passedTime) {
+    Bundle bundleDataForSession = new Bundle();
+    bundleDataForSession.putBoolean(IS_START_OF_SESSION, isStartOfSession);
+    bundleDataForSession.putString(SESSION_EVENT_NAME, message);
+    bundleDataForSession.putString(SESSION_PACKAGE_NAME, packageName);
+    bundleDataForSession.putBoolean(IS_APPLICATION_BACKGROUND, !CustomLifecycleCallbacks.isAppInForeground());
+    bundleDataForSession.putString(SESSION_START_TIME, mStartTime);
+    bundleDataForSession.putInt(SESSION_PASSED_TIME_IN_SECONDS, passedTime);
+    return bundleDataForSession;
+  }
+
   private void cleanup() {
     mTimer.cancel();
 
@@ -186,5 +226,6 @@ public class UserSessionHandler {
     mActivity = null;
     INSTANCE = null;
   }
+
 
 }

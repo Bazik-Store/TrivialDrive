@@ -1,11 +1,10 @@
-package com.example.android.trivialdrivesample;
+package com.example.android.trivialdrivesample.session;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 /**
  * Created by Ehsan Joon for bazik-trivial-driver at 17/03/2020
@@ -37,7 +36,7 @@ public class AppLifeCycleService extends Service {
   }
 
   private void sendEndEventBroadcast(){
-    Intent intent = new Intent(UserSessionHandler.BROADCAST_END_EVENT_KEY);
+    Intent intent = new Intent(UserSession.BROADCAST_END_EVENT_KEY);
     LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
   }
 

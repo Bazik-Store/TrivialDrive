@@ -20,18 +20,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -46,7 +41,6 @@ import com.example.android.trivialdrivesample.util.Purchase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 /**
  * Example game using in-app billing version 3.
@@ -483,7 +477,7 @@ public class MainActivity extends Activity implements IabBroadcastReceiver.IabBr
    */
   public void onSendUserEventClicked(View view) {
     Log.d(TAG, "Not handled here !!!");
-    startActivity(new Intent(this  , Main2Activity.class));
+    startActivity(new Intent(this  , SecondActivity.class));
 //    try {
 //      mHelper.sendUserEvent("ViewClicked!", view.getContext().getPackageName(), true , "0000-00-00 00:00:00");
 //    } catch (Exception e) {

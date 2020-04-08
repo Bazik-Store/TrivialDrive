@@ -30,9 +30,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.example.android.trivialdrivesample.AppLifeCycleService;
-import com.example.android.trivialdrivesample.CustomLifecycleCallbacks;
-import com.example.android.trivialdrivesample.UserSessionHandler;
+import com.example.android.trivialdrivesample.session.AppLifeCycleService;
+import com.example.android.trivialdrivesample.session.CustomLifecycleCallbacks;
+import com.example.android.trivialdrivesample.session.UserSession;
 
 import org.json.JSONException;
 
@@ -549,7 +549,7 @@ public class IabHelper {
       Purchase purchase = new Purchase(ITEM_TYPE_SUBS, subscribeInfo, "");
 
       //Send start session to the Bazik
-      UserSessionHandler.getInstance(activity, purchase.getStartTimeOfSession());
+      UserSession.getInstance(activity, purchase.getStartTimeOfSession());
 
       //Start AppLifeCycleService.class to track closing app from recent app part of device
       activity.startService(new Intent(activity, AppLifeCycleService.class));

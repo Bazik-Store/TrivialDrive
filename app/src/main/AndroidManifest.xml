@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Main2Activity"></activity>
+        <activity android:name=".SecondActivity"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".AppLifeCycleService"
+            android:name=".session.AppLifeCycleService"
             android:stopWithTask="false" />
     </application>
 
