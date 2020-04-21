@@ -221,7 +221,7 @@ public class UserSession implements SessionTimerInteractionListener {
     }
 
     if (endBroadCastReceiver == null)
-      mActivity.get().unregisterReceiver(endBroadCastReceiver);
+      LocalBroadcastManager.getInstance(mActivity.get()).unregisterReceiver(endBroadCastReceiver);
 
     mActivity = null;
     INSTANCE = null;
