@@ -84,7 +84,7 @@ public class UserSession implements SessionTimerInteractionListener {
 
     updateEndSessionMessage.setData(
       prepareBundleOfData(
-        false ,
+        false,
         "Automatically user session updated when he/she is active now!!!",
         passedSecondsInPeriod
       )
@@ -218,10 +218,11 @@ public class UserSession implements SessionTimerInteractionListener {
     if (mIsBinded && mActivity.get() != null) {
       mActivity.get().unbindService(mServiceConnection);
       mIsBinded = false;
-    }
 
-    if (endBroadCastReceiver == null)
-      LocalBroadcastManager.getInstance(mActivity.get()).unregisterReceiver(endBroadCastReceiver);
+      if (endBroadCastReceiver == null)
+        LocalBroadcastManager.getInstance(mActivity.get()).unregisterReceiver(endBroadCastReceiver);
+
+    }
 
     mActivity = null;
     INSTANCE = null;
