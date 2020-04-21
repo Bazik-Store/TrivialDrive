@@ -218,11 +218,11 @@ public class UserSession implements SessionTimerInteractionListener {
     if (mIsBinded && mActivity.get() != null) {
       mActivity.get().unbindService(mServiceConnection);
       mIsBinded = false;
-
-      if (endBroadCastReceiver == null)
-        LocalBroadcastManager.getInstance(mActivity.get()).unregisterReceiver(endBroadCastReceiver);
-
     }
+
+    if (endBroadCastReceiver == null && mActivity != null)
+      LocalBroadcastManager.getInstance(mActivity.get()).unregisterReceiver(endBroadCastReceiver);
+
 
     mActivity = null;
     INSTANCE = null;
