@@ -15,10 +15,12 @@ import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.example.android.trivialdrivesample.util.Logger;
+
 import java.lang.ref.WeakReference;
 import java.util.Timer;
-
 import static android.content.Context.BIND_AUTO_CREATE;
+
 
 /**
  * CREATED BY Javadroid FOR `Session Time Tracker` PROJECT
@@ -58,13 +60,14 @@ public class UserSession implements SessionTimerInteractionListener {
     Intent mIntent = new Intent();
     mIntent.setAction(SERVICE_TRACKER_ACTION_NAME);
     mIntent.setPackage(SERVICE_TRACKER_PACKAGE);
-    activity.bindService(mIntent, mServiceConnection, BIND_AUTO_CREATE);
+    mActivity.get().bindService(mIntent, mServiceConnection, BIND_AUTO_CREATE);
     LocalBroadcastManager.getInstance(mActivity.get()).registerReceiver(endBroadCastReceiver, new IntentFilter(BROADCAST_END_EVENT_KEY));
   }
 
   public static UserSession getInstance(Activity activity, String mStartTime) {
     if (INSTANCE == null) {
       synchronized (UserSession.class) {
+        Logger.debug(TAG, "getInstance: is called with this info: activity[" + activity.getClass().getSimpleName() + "] StartTime[" + mStartTime + "]");
         INSTANCE = new UserSession(activity, mStartTime);
       }
     }
@@ -76,7 +79,7 @@ public class UserSession implements SessionTimerInteractionListener {
   public void periodReached(int passedSecondsInPeriod) {
     Log.d(TAG, "Send Update for End session with Activity [" + mActivity.get().getClass().getName() + "]");
     if (INSTANCE == null || !mIsBinded) {
-      Log.e(TAG, "Can't submit any update fot EndSession INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
+      Logger.error(TAG, "Can't submit any update fot EndSession INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
       return;
     }
 
@@ -92,11 +95,11 @@ public class UserSession implements SessionTimerInteractionListener {
 
     try {
       mMessenger.send(updateEndSessionMessage);
-      Log.d(TAG, "Session time is [" + passedSecondsInPeriod + "]");
+      Logger.debug(TAG, "periodReached: Passed seconds is["+ passedSecondsInPeriod + "]");
     } catch (RemoteException e) {
-      //TODO What's the plan for this kind of situations? Suggestion: calling onClear() and leave this track
       e.printStackTrace();
-      Log.e(TAG, "Error while sending end session to the Bazik [" + e.getLocalizedMessage() + "]");
+      Logger.error(TAG, "periodReached: Error while sending periodicReached seconds [" + e.getLocalizedMessage() + "] Try to call Cleanup() to clean this mess!!!");
+      cleanup();
     }
   }
 
@@ -104,10 +107,20 @@ public class UserSession implements SessionTimerInteractionListener {
     submitEndSession();
   }
 
+
+  private BroadcastReceiver endBroadCastReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      Logger.debug(TAG, "broadcastReceiver: End session received from AppLifeCycleService");
+      submitEndSession();
+    }
+  };
+
   private void submitStartSession() {
-    Log.d(TAG, "Send Start session with startTime [" + mStartTime + "] with Activity [" + mActivity.get().getClass().getName() + "]");
+    Logger.debug(TAG, "submitStartSession: Send startTime [" + mStartTime + "] with Activity [" + mActivity.get().getClass().getName() + "]");
     if (mStartTime == null) {
-      Log.e(TAG, "Session start time is Null");
+      Logger.warning(TAG, "submitStartSession: Session start time is Null!!! try to cleanup this mess by calling cleanup()");
+      cleanup();
       return;
     }
 
@@ -128,15 +141,16 @@ public class UserSession implements SessionTimerInteractionListener {
 
     } catch (RemoteException e) {
       e.printStackTrace();
-      Log.d(TAG, "Error on send event [" + e.toString() + "]");
+      Logger.error(TAG, "Error on send event [" + e.toString() + "] Try to call Cleanup() to clean this mess!!!");
+      cleanup();
     }
 
   }
 
   private void submitEndSession() {
-    Log.d(TAG, "Send End session with Activity [" + mActivity.get().getClass().getName() + "]");
+    Logger.debug(TAG, "submitEndSession: Send End session with Activity [" + mActivity.get().getClass().getName() + "]");
     if (INSTANCE == null || !mIsBinded) {
-      Log.e(TAG, "Can't submitEndSession INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
+      Logger.error(TAG, "submitEndSession: Can't submit EndSession info: INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
       return;
     }
 
@@ -154,23 +168,14 @@ public class UserSession implements SessionTimerInteractionListener {
 
     try {
       mMessenger.send(endSessionMessage);
-      cleanup();
-      Log.d(TAG, "Session time is [" + sessionTime + "]");
-
+      Logger.debug(TAG, "Session time is [" + sessionTime + "]");
     } catch (RemoteException e) {
-      //TODO What's the plan for this kind of situations? Suggestion: calling onClear() and leave this track
       e.printStackTrace();
-      Log.e(TAG, "Error while sending end session to the Bazik [" + e.getLocalizedMessage() + "]");
+      Logger.error(TAG, "Error while sending end session to the Bazik [" + e.getLocalizedMessage() + "] Try to call Cleanup() to clean this mess!!!");
     }
-  }
 
-  private BroadcastReceiver endBroadCastReceiver = new BroadcastReceiver() {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      Log.d(TAG, "End session received from AppLifeCycleService");
-      submitEndSession();
-    }
-  };
+    cleanup();
+  }
 
   private void startTimer() {
 
@@ -183,16 +188,13 @@ public class UserSession implements SessionTimerInteractionListener {
 
     @Override
     public void onServiceDisconnected(ComponentName arg0) {
-      //TODO What's the plan for this kind of situations? Suggestion: calling onClear() and leave this track
-
-      Log.w(TAG, "Tracker Service is disConnected");
-      mIsBinded = false;
-      mServiceConnection = null;
+      Logger.warning(TAG, "onServiceDisconnected: Tracker service is disconnected");
+      cleanup();
     }
 
     @Override
     public void onServiceConnected(ComponentName arg0, IBinder arg1) {
-      Log.d(TAG, "Tracker service is Connected");
+      Logger.debug(TAG, "Tracker service is Connected with mActivity[" + mActivity.get().getClass().getSimpleName() + "]");
 
       mIsBinded = true;
       mMessenger = new Messenger(arg1);
@@ -213,20 +215,21 @@ public class UserSession implements SessionTimerInteractionListener {
   }
 
   private void cleanup() {
+    Logger.debug(TAG, "cleanup: Called");
     mTimer.cancel();
 
     if (mIsBinded && mActivity.get() != null) {
       mActivity.get().unbindService(mServiceConnection);
       mIsBinded = false;
+      Logger.debug(TAG, "cleanup: try to unbindService, mIsBinded[" + mIsBinded + "] mActivity[" + mActivity.get().getClass().getSimpleName() + "]");
     }
 
-    if (endBroadCastReceiver != null && mActivity != null)
+    if (endBroadCastReceiver != null && mActivity != null) {
       LocalBroadcastManager.getInstance(mActivity.get()).unregisterReceiver(endBroadCastReceiver);
-
+      Logger.debug(TAG, "cleanup: unregister [endBroadCastReceiver]");
+    }
 
     mActivity = null;
     INSTANCE = null;
   }
-
-
 }
