@@ -44,14 +44,14 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
   public void onActivityResumed(@NonNull Activity activity) {
     Logger.debug(TAG, "onActivityResumed: activity [" + activity.getClass().getSimpleName() + "] currentActivity[" + currentActivity.getClass().getSimpleName() + "]");
 
-    //try to stop any active session
-    UserSession.getInstance(currentActivity, sessionStartTime).endSession();
-
     //update current activity
     currentActivity = activity;
 
+    //try to stop any active session
+    UserSession.getInstance(currentActivity, sessionStartTime).endSession();
+
     //Start tracking a new session
-    UserSession.getInstance(activity, sessionStartTime);
+    UserSession.getInstance(currentActivity, sessionStartTime);
   }
 
   @Override
@@ -82,7 +82,6 @@ public class CustomLifecycleCallbacks implements Application.ActivityLifecycleCa
     if (currentActivity == activity) {
       UserSession.getInstance(activity, sessionStartTime).endSession();
     }
-
   }
 
   @Override
