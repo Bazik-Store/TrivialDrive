@@ -117,6 +117,12 @@ public class UserSession implements SessionTimerInteractionListener {
   };
 
   private void submitStartSession() {
+
+    if(!mIsBinded){
+      Logger.error(TAG, "Attempt to end session while the service is not connected!!");
+      return;
+    }
+
     Logger.debug(TAG, "submitStartSession: Send startTime [" + mStartTime + "] with Activity [" + mActivity.get().getClass().getName() + "]");
     if (mStartTime == null) {
       Logger.warning(TAG, "submitStartSession: Session start time is Null!!! try to cleanup this mess by calling cleanup()");
@@ -148,6 +154,12 @@ public class UserSession implements SessionTimerInteractionListener {
   }
 
   private void submitEndSession() {
+
+    if(!mIsBinded){
+      Logger.error(TAG, "Attempt to end session while the service is not connected!!");
+      return;
+    }
+
     Logger.debug(TAG, "submitEndSession: Send End session with Activity [" + mActivity.get().getClass().getName() + "]");
     if (INSTANCE == null || !mIsBinded) {
       Logger.error(TAG, "submitEndSession: Can't submit EndSession info: INSTANCE[" + INSTANCE + "] mIsBinded[" + mIsBinded + "]");
@@ -216,7 +228,10 @@ public class UserSession implements SessionTimerInteractionListener {
 
   private void cleanup() {
     Logger.debug(TAG, "cleanup: Called");
-    mTimer.cancel();
+
+    if (mTimer != null) {
+      mTimer.cancel();
+    }
 
     if (mIsBinded && mActivity.get() != null) {
       mActivity.get().unbindService(mServiceConnection);
