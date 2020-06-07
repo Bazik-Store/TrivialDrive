@@ -120,6 +120,7 @@ public class UserSession implements SessionTimerInteractionListener {
 
     if(!mIsBinded){
       Logger.error(TAG, "Attempt to start session while the service is not connected!!");
+      cleanup();
       return;
     }
 
@@ -157,6 +158,7 @@ public class UserSession implements SessionTimerInteractionListener {
 
     if(!mIsBinded){
       Logger.error(TAG, "Attempt to end session while the service is not connected!!");
+      cleanup();
       return;
     }
 
