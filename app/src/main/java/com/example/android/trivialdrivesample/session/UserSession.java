@@ -119,7 +119,7 @@ public class UserSession implements SessionTimerInteractionListener {
   private void submitStartSession() {
 
     if(!mIsBinded){
-      Logger.error(TAG, "Attempt to end session while the service is not connected!!");
+      Logger.error(TAG, "Attempt to start session while the service is not connected!!");
       return;
     }
 
